@@ -21,6 +21,7 @@ llm:
 paths:
   output_dir: "${hydra:runtime.output_dir}/artifacts"
   templates_dir: "${hydra:runtime.cwd}/templates"
+  policy_library: "${hydra:runtime.cwd}/policy-library" # Path to your local Sentinel policies
 
 agents:
   architect:

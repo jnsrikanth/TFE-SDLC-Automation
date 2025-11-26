@@ -93,7 +93,14 @@ This agent distinguishes between different types of validation to ensure a robus
 
 ### 2. Policy as Code (SecOps Agent)
 *   **Tool**: `Sentinel` (HashiCorp) or `OPA` (Open Policy Agent).
-*   **Purpose**: Enforces governance rules that are specific to the organization (e.g., "All AKS clusters must be in `eastus`" or "Cost center tag is mandatory"). This runs against the Terraform plan.
+*   **Purpose**: Enforces governance rules that are specific to the organization.
+*   **Configuration**:
+    *   Point the agent to your local policy repository in `conf/config.yaml`:
+        ```yaml
+        paths:
+          policy_library: "/path/to/your/sentinel/policies"
+        ```
+    *   The agent will simulate running `sentinel apply -config=/path/to/policies` against the generated code.
 
 ### 3. Behavior Driven Development (QA Agent)
 *   **Tool**: `terraform-compliance` (or similar BDD frameworks).

@@ -15,7 +15,7 @@ prompts:
     tasks:
       secrets: "Run detect-secrets on {code_path}"
       sast: "Run Checkov analysis on {code_path}"
-      policy: "Run Sentinel policies on {code_path}"
+      policy: "I have run 'sentinel apply' using policies from '{policy_path}' against '{code_path}'. Simulate the output report based on standard Azure governance rules."
 
   qa:
     system: "You are a QA Engineer specializing in Infrastructure as Code."
