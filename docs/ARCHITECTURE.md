@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Level 4 Agent is designed as a **Multi-Agent System (MAS)** where specialized agents collaborate to produce a high-quality, secure, and tested Terraform module.
+The Level 4 Agent is designed as a **Multi-Agent System (MAS)** where specialized agents collaborate to produce a high-quality, secure, and tested Terraform module. The intelligence layer is powered by **Gemini 3.0 Pro**, enabling complex reasoning across architectural design, security compliance, and code generation.
 
 ## Agents
 
