@@ -69,3 +69,16 @@ Implementing this Level 4 Autonomous Agent system transforms the Terraform SDLC 
 
 ### AI Engine: Gemini 3.0 Pro
 This system is powered by **Google's Gemini 3.0 Pro**, chosen for its superior reasoning capabilities in code generation and infrastructure logic. Its large context window allows it to ingest entire module dependencies and enterprise policy documents to make context-aware decisions.
+
+## Why Level 4 Autonomy?
+
+We classify this system as **Level 4 (High Autonomy)** based on the standard agentic maturity model:
+
+*   **Level 1 (Scripting)**: Simple automation of repetitive tasks (e.g., a bash script to run `terraform apply`).
+*   **Level 2 (Copilot)**: AI assists a human who remains the driver (e.g., GitHub Copilot suggesting code snippets).
+*   **Level 3 (Conditional Autonomy)**: Agents can perform tasks but require frequent human intervention for decision-making and error handling.
+*   **Level 4 (High Autonomy)**: **This System**. The agents operate in a **Goal-Oriented** mode.
+    *   **Strategic Planning**: You provide a high-level intent ("Build an AKS cluster"), and the *Architect* agent autonomously decomposes this into technical specifications.
+    *   **Self-Correction Loop**: If the *SecOps* agent detects a vulnerability, it can autonomously reject the build and instruct the *Coder* agent to remediate it *without* human intervention.
+    *   **Multi-Agent Collaboration**: The agents coordinate their own handoffs (Architect -> Coder -> QA) based on the workflow state, not hard-coded linear scripts.
+    *   **Human-on-the-Loop**: Humans are only required for the final review of the "Golden Copy" before publishing, rather than being involved in every step of the drafting process.
