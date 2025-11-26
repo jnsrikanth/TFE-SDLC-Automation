@@ -5,16 +5,22 @@ import os
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+import hydra
+from omegaconf import DictConfig, OmegaConf
 from agents.orchestrator import OrchestratorAgent
 
-def main():
-    parser = argparse.ArgumentParser(description="Level 4 Terraform SDLC Automation Agent")
-    parser.add_argument("--requirements", type=str, required=True, help="High-level requirements for the module")
+@hydra.main(version_base=None, config_path="conf", config_name="config")
+def main(cfg: DictConfig):
+    print(OmegaConf.to_yaml(cfg))
     
-    args = parser.parse_args()
+    # Requirements passed via CLI override or prompt
+    # In Hydra, we can pass requirements="My Req"
+    # But for now let's assume it's passed as a config override or we ask for it if missing
     
-    orchestrator = OrchestratorAgent()
-    orchestrator.run(args.requirements)
+    requirements = cfg.get("requirements", "Standard AKS Cluster")
+    
+    orchestrator = OrchestratorAgent(cfg)
+    orchestrator.run(requirements)
 
 if __name__ == "__main__":
     main()

@@ -2,8 +2,8 @@ import os
 from agents.base_agent import BaseAgent
 
 class CoderAgent(BaseAgent):
-    def __init__(self):
-        super().__init__("Coder")
+    def __init__(self, cfg):
+        super().__init__("Coder", cfg)
 
     def write_code(self, blueprint: str):
         self.log("Generating Terraform code based on blueprint...")
@@ -23,7 +23,7 @@ class CoderAgent(BaseAgent):
         self.log("Code generation complete.")
 
     def _write_file(self, filename: str, content: str):
-        path = os.path.join(self.config.OUTPUT_DIR, filename)
+        path = os.path.join(self.cfg.paths.output_dir, filename)
         with open(path, "w") as f:
             f.write(content)
         self.log(f"Written {filename}")

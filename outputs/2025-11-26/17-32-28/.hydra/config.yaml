@@ -1,0 +1,32 @@
+app:
+  name: TFE-SDLC-Automation-Agent
+  version: 1.0.0
+requirements: Standard AKS Cluster
+llm:
+  model: gemini-3.0-pro
+  temperature: 0.2
+  max_tokens: 2048
+  api_key: ${oc.env:GEMINI_API_KEY, ''}
+paths:
+  output_dir: ${hydra:runtime.output_dir}/artifacts
+  templates_dir: ${hydra:runtime.cwd}/templates
+agents:
+  architect:
+    name: Architect
+    model: ${llm.model}
+  coder:
+    name: Coder
+    model: ${llm.model}
+  secops:
+    name: SecOps
+    tools:
+    - checkov
+    - detect-secrets
+    - sentinel
+  qa:
+    name: QA
+    frameworks:
+    - terratest
+    - terraform-compliance
+  scribe:
+    name: Scribe

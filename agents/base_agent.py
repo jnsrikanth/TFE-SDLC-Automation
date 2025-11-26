@@ -1,11 +1,11 @@
+from omegaconf import DictConfig
 from core.llm_interface import LLMInterface
-from core.config import config
 
 class BaseAgent:
-    def __init__(self, name: str):
+    def __init__(self, name: str, cfg: DictConfig):
         self.name = name
-        self.llm = LLMInterface(config)
-        self.config = config
+        self.cfg = cfg
+        self.llm = LLMInterface(cfg)
 
     def log(self, message: str):
         print(f"[{self.name}] {message}")

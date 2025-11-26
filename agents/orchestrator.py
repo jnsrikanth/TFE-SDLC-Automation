@@ -3,19 +3,23 @@ from agents.coder import CoderAgent
 from agents.secops import SecOpsAgent
 from agents.qa import QAAgent
 from agents.scribe import ScribeAgent
-from core.config import config
+from omegaconf import DictConfig
+import os
 
 class OrchestratorAgent:
-    def __init__(self):
-        self.architect = ArchitectAgent()
-        self.coder = CoderAgent()
-        self.secops = SecOpsAgent()
-        self.qa = QAAgent()
-        self.scribe = ScribeAgent()
+    def __init__(self, cfg: DictConfig):
+        self.cfg = cfg
+        self.architect = ArchitectAgent(cfg)
+        self.coder = CoderAgent(cfg)
+        self.secops = SecOpsAgent(cfg)
+        self.qa = QAAgent(cfg)
+        self.scribe = ScribeAgent(cfg)
 
     def run(self, requirements: str):
         print("=== Starting TFE SDLC Automation Agent ===")
-        config.ensure_dirs()
+        
+        # Hydra manages output dir automatically, but we can ensure subdirs
+        os.makedirs(self.cfg.paths.output_dir, exist_ok=True)
         
         # Step 1: Architect designs the module
         blueprint = self.architect.design_module(requirements)
@@ -25,15 +29,15 @@ class OrchestratorAgent:
         
         # Step 3: SecOps validates the module
         # 3a. Secret Scanning
-        secret_report = self.secops.scan_secrets(config.OUTPUT_DIR)
+        secret_report = self.secops.scan_secrets(self.cfg.paths.output_dir)
         print(secret_report)
         
         # 3b. SAST
-        sast_report = self.secops.run_sast(config.OUTPUT_DIR)
+        sast_report = self.secops.run_sast(self.cfg.paths.output_dir)
         print(sast_report)
 
         # 3c. Policy as Code
-        policy_report = self.secops.run_policy_check(config.OUTPUT_DIR)
+        policy_report = self.secops.run_policy_check(self.cfg.paths.output_dir)
         print(policy_report)
         
         # Step 4: QA generates tests
@@ -47,4 +51,4 @@ class OrchestratorAgent:
         self.scribe.write_documentation(blueprint)
         
         print("=== Module Development Complete ===")
-        print(f"Artifacts available in: {config.OUTPUT_DIR}")
+        print(f"Artifacts available in: {self.cfg.paths.output_dir}")

@@ -1,8 +1,8 @@
 from agents.base_agent import BaseAgent
 
 class SecOpsAgent(BaseAgent):
-    def __init__(self):
-        super().__init__("SecOps")
+    def __init__(self, cfg):
+        super().__init__("SecOps", cfg)
 
     def scan_secrets(self, code_path: str) -> str:
         self.log(f"Running secret scanning on {code_path}...")

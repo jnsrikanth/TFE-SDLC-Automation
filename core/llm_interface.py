@@ -7,8 +7,8 @@ class LLMInterface:
     to demonstrate the agentic workflow.
     """
     
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, cfg):
+        self.cfg = cfg
 
     def generate(self, prompt: str, context: str = "") -> str:
         """
