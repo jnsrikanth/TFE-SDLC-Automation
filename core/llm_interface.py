@@ -125,6 +125,13 @@ variable "tags" {
 *   [PASSED] No hardcoded secrets found in .tf files.
 *   [PASSED] No .env files committed.
 """
+        elif "Sentinel" in prompt:
+            return """
+**Policy as Code Report (Sentinel)**
+*   [PASSED] policy-aks-allowed-regions (Hard Mandatory)
+*   [PASSED] policy-aks-mandatory-tags (Soft Mandatory)
+*   [PASSED] policy-aks-max-nodes (Advisory)
+"""
         else:
             return """
 **Security Scan Report (SAST)**
@@ -134,10 +141,6 @@ variable "tags" {
     *   [PASSED] CKV_AZURE_4: Ensure AKS has RBAC enabled.
     *   [WARNING] CKV_AZURE_115: Ensure that AKS uses Azure CNI networking. (Current: Basic) -> *Recommendation: Update network_profile*
     *   [WARNING] CKV_AZURE_117: Ensure that AKS uses disk encryption sets.
-
-2.  **Sentinel Policy Check**:
-    *   [PASSED] policy-aks-allowed-regions
-    *   [PASSED] policy-aks-mandatory-tags
 """
 
     def _mock_qa_response(self, prompt):

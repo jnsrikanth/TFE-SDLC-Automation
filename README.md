@@ -91,7 +91,11 @@ This agent distinguishes between different types of validation to ensure a robus
 *   **Secret Scanning**: Before any code is committed, the SecOps agent runs tools like `detect-secrets` or `gitleaks` to ensure no hardcoded passwords, tokens, or keys exist in the HCL.
 *   **Static Analysis (SAST)**: Uses `checkov` or `tfsec` to find infrastructure misconfigurations (e.g., public buckets, unencrypted databases) *without* deploying resources.
 
-### 2. Behavior Driven Development (QA Agent)
+### 2. Policy as Code (SecOps Agent)
+*   **Tool**: `Sentinel` (HashiCorp) or `OPA` (Open Policy Agent).
+*   **Purpose**: Enforces governance rules that are specific to the organization (e.g., "All AKS clusters must be in `eastus`" or "Cost center tag is mandatory"). This runs against the Terraform plan.
+
+### 3. Behavior Driven Development (QA Agent)
 *   **Tool**: `terraform-compliance` (or similar BDD frameworks).
 *   **Purpose**: Validates the *structure* and *policy* of the code using Gherkin syntax (e.g., "GIVEN a resource, WHEN it is an AKS cluster, THEN it must have RBAC enabled"). This is a "Compliance as Code" check.
 

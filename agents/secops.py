@@ -11,7 +11,13 @@ class SecOpsAgent(BaseAgent):
         return report
 
     def run_sast(self, code_path: str) -> str:
-        self.log(f"Running SAST (Checkov/Sentinel) on {code_path}...")
-        report = self.think(f"Run Checkov and Sentinel analysis on {code_path}")
+        self.log(f"Running SAST (Checkov) on {code_path}...")
+        report = self.think(f"Run Checkov analysis on {code_path}")
         self.log("SAST complete.")
+        return report
+
+    def run_policy_check(self, code_path: str) -> str:
+        self.log(f"Running Policy as Code (Sentinel) on {code_path}...")
+        report = self.think(f"Run Sentinel policies on {code_path}")
+        self.log("Policy check complete.")
         return report

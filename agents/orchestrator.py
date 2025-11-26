@@ -31,6 +31,10 @@ class OrchestratorAgent:
         # 3b. SAST
         sast_report = self.secops.run_sast(config.OUTPUT_DIR)
         print(sast_report)
+
+        # 3c. Policy as Code
+        policy_report = self.secops.run_policy_check(config.OUTPUT_DIR)
+        print(policy_report)
         
         # Step 4: QA generates tests
         # 4a. BDD
