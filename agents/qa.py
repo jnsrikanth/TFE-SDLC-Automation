@@ -7,7 +7,7 @@ class QAAgent(BaseAgent):
 
     def generate_bdd_tests(self, blueprint: str):
         self.log("Generating BDD (terraform-compliance) features...")
-        feature_code = self.think(f"Write terraform-compliance features for: {blueprint}")
+        feature_code = self.think(self.cfg.prompts.qa.tasks.bdd.format(blueprint=blueprint))
         
         test_dir = os.path.join(self.cfg.paths.output_dir, "test")
         os.makedirs(test_dir, exist_ok=True)
@@ -18,7 +18,7 @@ class QAAgent(BaseAgent):
 
     def generate_integration_tests(self, blueprint: str):
         self.log("Generating Terratest (Go) code...")
-        test_code = self.think(f"Write Terratest code for: {blueprint}")
+        test_code = self.think(self.cfg.prompts.qa.tasks.integration.format(blueprint=blueprint))
         
         test_dir = os.path.join(self.cfg.paths.output_dir, "test")
         os.makedirs(test_dir, exist_ok=True)

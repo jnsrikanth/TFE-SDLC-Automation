@@ -102,3 +102,24 @@ This agent distinguishes between different types of validation to ensure a robus
 ### 3. Integration Testing (QA Agent)
 *   **Tool**: `terratest` (Go).
 *   **Purpose**: Validates the *functionality* by actually deploying the resource to a sandbox, running assertions (e.g., making an HTTP request to the cluster), and then destroying it.
+
+## Prompt Engineering & Validation (2025 Standards)
+
+### Prompt as Configuration (Hydra)
+We utilize **Hydra** to manage prompts as configuration (`conf/prompts.yaml`), decoupling the "intelligence" from the "logic". This allows for:
+*   **Prompt Optimization**: You can A/B test different system instructions or few-shot examples without changing a single line of Python code.
+*   **Model Swapping**: Different prompts can be targeted at different models (e.g., a more verbose prompt for a smaller model) via Hydra's config groups.
+
+### The "Gold Standard" of Validation
+In the era of Generative AI, we adhere to the **Deterministic + LLM-as-a-Judge** pattern:
+
+1.  **Deterministic Validation (The Foundation)**:
+    *   Never trust the LLM to validate its own syntax. Always use the compiler/CLI.
+    *   *Example*: The Coder agent's output is validated by `terraform validate` and `tflint`. If these fail, the agent must self-correct.
+
+2.  **LLM-as-a-Judge (Semantic Validation)**:
+    *   For qualitative checks (e.g., "Is this documentation clear?"), we use a separate, highly capable model (Gemini 3.0 Pro) acting as a "Critic" to score the output against a rubric.
+    *   *Self-Correction*: If the Critic gives a low score, the Generator agent is invoked again with the specific feedback.
+
+3.  **Constitutional AI / Guardrails**:
+    *   We embed "Constitutions" (e.g., "No hardcoded secrets") into the SecOps agent's system prompt and verify them with deterministic scanners (`detect-secrets`).

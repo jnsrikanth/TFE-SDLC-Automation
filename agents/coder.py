@@ -9,15 +9,15 @@ class CoderAgent(BaseAgent):
         self.log("Generating Terraform code based on blueprint...")
         
         # Generate main.tf
-        main_tf = self.think(f"Write main.tf based on: {blueprint}")
+        main_tf = self.think(self.cfg.prompts.coder.tasks.main.format(blueprint=blueprint))
         self._write_file("main.tf", main_tf)
         
         # Generate variables.tf
-        vars_tf = self.think(f"Write variables.tf based on: {blueprint}")
+        vars_tf = self.think(self.cfg.prompts.coder.tasks.variables.format(blueprint=blueprint))
         self._write_file("variables.tf", vars_tf)
         
         # Generate outputs.tf
-        outputs_tf = self.think(f"Write outputs.tf based on: {blueprint}")
+        outputs_tf = self.think(self.cfg.prompts.coder.tasks.outputs.format(blueprint=blueprint))
         self._write_file("outputs.tf", outputs_tf)
         
         self.log("Code generation complete.")
