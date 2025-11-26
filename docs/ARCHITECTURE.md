@@ -21,14 +21,21 @@ The Level 4 Agent is designed as a **Multi-Agent System (MAS)** where specialize
 ### 3. SecOps Agent
 *   **Role**: Security Engineer.
 *   **Input**: Generated HCL code.
-*   **Output**: Security Report.
-*   **Logic**: Simulates running tools like Checkov and Sentinel. In a real implementation, it would execute these CLIs against the `output/` directory.
+*   **Output**: Security Compliance Report.
+*   **Tools**:
+    *   **Static Analysis (SAST)**: `checkov` or `tfsec` to find misconfigurations (e.g., open security groups, unencrypted disks).
+    *   **Secret Scanning**: `detect-secrets` or `gitleaks` to ensure no passwords/keys are hardcoded.
+    *   **Policy as Code**: `Sentinel` or `OPA` to enforce enterprise governance.
+*   **Logic**: Scans the code and blocks the pipeline if critical vulnerabilities or secrets are found.
 
 ### 4. QA Agent
 *   **Role**: Test Engineer.
 *   **Input**: Module Blueprint.
-*   **Output**: Terratest (Go) code.
-*   **Logic**: Generates automated tests to verify the module works as expected.
+*   **Output**: Test Suites (BDD & Integration).
+*   **Tools**:
+    *   **Integration Tests**: `terratest` (Go) to spin up real infrastructure and verify it works (e.g., "Can I curl the load balancer?").
+    *   **BDD / Compliance**: `terraform-compliance` (Python/Radish) to run behavior-driven tests written in Gherkin (e.g., "GIVEN I have a storage account, WHEN it is created, THEN it must have https_only enabled").
+*   **Logic**: Generates both the Gherkin feature files for BDD and the Go code for Terratest.
 
 ### 5. Scribe Agent
 *   **Role**: Technical Writer.

@@ -82,3 +82,19 @@ We classify this system as **Level 4 (High Autonomy)** based on the standard age
     *   **Self-Correction Loop**: If the *SecOps* agent detects a vulnerability, it can autonomously reject the build and instruct the *Coder* agent to remediate it *without* human intervention.
     *   **Multi-Agent Collaboration**: The agents coordinate their own handoffs (Architect -> Coder -> QA) based on the workflow state, not hard-coded linear scripts.
     *   **Human-on-the-Loop**: Humans are only required for the final review of the "Golden Copy" before publishing, rather than being involved in every step of the drafting process.
+
+## Testing & Security Strategy
+
+This agent distinguishes between different types of validation to ensure a robust module:
+
+### 1. Security & Secrets (SecOps Agent)
+*   **Secret Scanning**: Before any code is committed, the SecOps agent runs tools like `detect-secrets` or `gitleaks` to ensure no hardcoded passwords, tokens, or keys exist in the HCL.
+*   **Static Analysis (SAST)**: Uses `checkov` or `tfsec` to find infrastructure misconfigurations (e.g., public buckets, unencrypted databases) *without* deploying resources.
+
+### 2. Behavior Driven Development (QA Agent)
+*   **Tool**: `terraform-compliance` (or similar BDD frameworks).
+*   **Purpose**: Validates the *structure* and *policy* of the code using Gherkin syntax (e.g., "GIVEN a resource, WHEN it is an AKS cluster, THEN it must have RBAC enabled"). This is a "Compliance as Code" check.
+
+### 3. Integration Testing (QA Agent)
+*   **Tool**: `terratest` (Go).
+*   **Purpose**: Validates the *functionality* by actually deploying the resource to a sandbox, running assertions (e.g., making an HTTP request to the cluster), and then destroying it.
