@@ -33,3 +33,19 @@ The system consists of the following agents:
 *   `core/`: Core utilities and configuration.
 *   `output/`: Generated artifacts.
 *   `templates/`: Base templates.
+
+## FAQ
+
+### Source of Terraform Code
+In this demo, the **Coder Agent** generates code based on internal templates and simulated LLM knowledge. In a production environment, this agent would be enhanced to:
+1.  Query the **Terraform Registry** or **Azure/Microsoft Documentation** for the latest resource definitions.
+2.  Pull "Golden Copy" modules from an internal service catalog as a base.
+
+### Working with Existing Modules (Brownfield)
+The agent is designed to support existing modules that may lack tests or documentation. You can run specific agents to "backfill" these artifacts:
+
+*   **QA Agent**: Can ingest existing `*.tf` files to generate BDD `terratest` cases.
+*   **SecOps Agent**: Can scan legacy modules to generate a security compliance report.
+*   **Scribe Agent**: Can read existing code to auto-generate `README.md` and `USAGE.md`.
+
+To support this, the `Orchestrator` can be configured to skip the `Architect` and `Coder` phases and point directly to an existing source directory.
