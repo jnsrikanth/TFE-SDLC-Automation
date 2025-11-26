@@ -119,8 +119,15 @@ variable "tags" {
             return "# Terraform Code Generated"
 
     def _mock_secops_response(self, prompt):
-        return """
-**Security Scan Report**
+        if "detect-secrets" in prompt:
+            return """
+**Secret Scanning Report**
+*   [PASSED] No hardcoded secrets found in .tf files.
+*   [PASSED] No .env files committed.
+"""
+        else:
+            return """
+**Security Scan Report (SAST)**
 
 1.  **Checkov Scan**:
     *   [PASSED] CKV_AZURE_1: Ensure AKS uses RBAC.
@@ -134,7 +141,18 @@ variable "tags" {
 """
 
     def _mock_qa_response(self, prompt):
-        return """
+        if "terraform-compliance" in prompt:
+            return """
+Feature: Ensure AKS Cluster Security
+
+    Scenario: Ensure RBAC is enabled
+        Given I have resource that supports tags defined
+        When it contains tags
+        Then it must contain rbac_enabled
+        And its value must be true
+"""
+        else:
+            return """
 package test
 
 import (

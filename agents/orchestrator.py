@@ -24,11 +24,20 @@ class OrchestratorAgent:
         self.coder.write_code(blueprint)
         
         # Step 3: SecOps validates the module
-        security_report = self.secops.validate_security(config.OUTPUT_DIR)
-        print(security_report)
+        # 3a. Secret Scanning
+        secret_report = self.secops.scan_secrets(config.OUTPUT_DIR)
+        print(secret_report)
+        
+        # 3b. SAST
+        sast_report = self.secops.run_sast(config.OUTPUT_DIR)
+        print(sast_report)
         
         # Step 4: QA generates tests
-        self.qa.generate_tests(blueprint)
+        # 4a. BDD
+        self.qa.generate_bdd_tests(blueprint)
+        
+        # 4b. Integration Tests
+        self.qa.generate_integration_tests(blueprint)
         
         # Step 5: Scribe writes documentation
         self.scribe.write_documentation(blueprint)
