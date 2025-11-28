@@ -1,0 +1,23 @@
+import "json"
+
+param tfplan
+
+plan = tfplan
+
+# Filter for google_storage_bucket resources
+allBuckets = filter plan.resource_changes as rc {
+    rc.type is "google_storage_bucket" and
+    (rc.change.actions contains "create" or rc.change.actions contains "update")
+}
+
+# Rule to check if versioning is enabled
+versioning_enabled = rule {
+    all allBuckets as bucket {
+        keys(bucket.change.after) contains "versioning" and
+        bucket.change.after.versioning[0].enabled is true
+    }
+}
+
+main = rule {
+    versioning_enabled
+}

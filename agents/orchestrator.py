@@ -31,14 +31,20 @@ class OrchestratorAgent:
         # 3a. Secret Scanning
         secret_report = self.secops.scan_secrets(self.cfg.paths.output_dir)
         print(secret_report)
+        with open(os.path.join(self.cfg.paths.output_dir, "secret_scan_report.txt"), "w") as f:
+            f.write(secret_report)
         
         # 3b. SAST
         sast_report = self.secops.run_sast(self.cfg.paths.output_dir)
         print(sast_report)
+        with open(os.path.join(self.cfg.paths.output_dir, "sast_report.txt"), "w") as f:
+            f.write(sast_report)
 
         # 3c. Policy as Code
         policy_report = self.secops.run_policy_check(self.cfg.paths.output_dir)
         print(policy_report)
+        with open(os.path.join(self.cfg.paths.output_dir, "policy_check_report.txt"), "w") as f:
+            f.write(policy_report)
         
         # Step 4: QA generates tests
         # 4a. BDD

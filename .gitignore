@@ -1,0 +1,9 @@
+bin/
+outputs/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+.terraform/
+*.tfstate
+*.tfstate.backup

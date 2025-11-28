@@ -53,16 +53,85 @@ class SecOpsAgent(BaseAgent):
         policy_path = self.cfg.paths.get("policy_library", "policy-library")
         self.log(f"Running Policy as Code (Sentinel) using library at: {policy_path}")
         
-        # Sentinel CLI is often not available in standard environments, so we keep this simulated 
-        # OR we can try to run it if available.
-        # For now, let's keep the simulation but make it clear it's simulated unless user asks for Sentinel CLI specifically.
-        # User asked for "real tools", but Sentinel requires a binary download. 
-        # Let's stick to the prompt-based simulation for Sentinel for now as it wasn't explicitly requested to be installed (unlike checkov).
-        
-        prompt = self.cfg.prompts.secops.tasks.policy.format(
-            code_path=code_path, 
-            policy_path=policy_path
-        )
-        report = self.think(prompt)
+        import subprocess
+        import os
+        import json
+
+        sentinel_bin = os.path.abspath("bin/sentinel")
+        if not os.path.exists(sentinel_bin):
+            return "Sentinel binary not found at bin/sentinel. Please install it."
+
+        try:
+            # 0. Create dummy tfvars to avoid interactive prompts
+            tfvars_path = os.path.join(code_path, "terraform.tfvars")
+            with open(tfvars_path, "w") as f:
+                f.write('project_id = "test-project"\n')
+                f.write('location = "US"\n')
+                f.write('region = "us-central1"\n')
+                f.write('bucket_name = "test-bucket-12345"\n')
+                f.write('name = "test-resource"\n')
+
+            # 1. Generate Terraform Plan
+            self.log("Generating Terraform plan for Sentinel...")
+            subprocess.run(["terraform", "init"], cwd=code_path, check=True, capture_output=True)
+            # Use -input=false to prevent hanging
+            subprocess.run(["terraform", "plan", "-out=tfplan", "-input=false"], cwd=code_path, check=True, capture_output=True)
+            
+            # 2. Convert to JSON
+            self.log("Converting plan to JSON...")
+            plan_json_proc = subprocess.run(
+                ["terraform", "show", "-json", "tfplan"], 
+                cwd=code_path, 
+                check=True, 
+                capture_output=True, 
+                text=True
+            )
+            plan_json_path = os.path.join(code_path, "tfplan.json")
+            with open(plan_json_path, "w") as f:
+                f.write(plan_json_proc.stdout)
+
+            # 3. Run Sentinel Apply
+            self.log("Executing Sentinel Apply...")
+            
+            # We use the -param approach to pass the JSON plan to the policy.
+            # The policy must expect a 'tfplan' param.
+            
+            # Create a simple config file (no mocks needed if we use param)
+            config_content = f'''
+            policy "gcs-bucket" {{
+                source = "{os.path.abspath('policy-library/gcs-bucket.sentinel')}"
+                enforcement_level = "advisory"
+            }}
+            '''
+            
+            config_path = os.path.join(code_path, "sentinel.hcl")
+            with open(config_path, "w") as f:
+                f.write(config_content)
+                
+            # Read the plan JSON
+            with open(plan_json_path, "r") as f:
+                plan_json_content = f.read()
+                
+            # Run Sentinel
+            # We pass the plan content as a parameter. 
+            # Note: This might be large, but for typical modules it's fine.
+            cmd = [sentinel_bin, "apply", "-trace", "-config", config_path, "-param", f"tfplan={plan_json_content}"]
+            
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            
+            report = f"Sentinel Policy Check Results:\n{result.stdout}"
+            if result.stderr:
+                report += f"\nStderr:\n{result.stderr}"
+                
+            if result.returncode != 0:
+                report += "\n\nPolicy Check Failed."
+            else:
+                report += "\n\nPolicy Check Passed."
+
+        except subprocess.CalledProcessError as e:
+            report = f"Error running Terraform/Sentinel: {e}\nOutput: {e.output if hasattr(e, 'output') else ''}"
+        except Exception as e:
+            report = f"Error executing policy check: {str(e)}"
+            
         self.log("Policy check complete.")
         return report

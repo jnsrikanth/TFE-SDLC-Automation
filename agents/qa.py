@@ -8,6 +8,7 @@ class QAAgent(BaseAgent):
     def generate_bdd_tests(self, blueprint: str):
         self.log("Generating BDD (terraform-compliance) features...")
         feature_code = self.think(self.cfg.prompts.qa.tasks.bdd.format(blueprint=blueprint))
+        feature_code = self._clean_content(feature_code)
         
         test_dir = os.path.join(self.cfg.paths.output_dir, "test")
         os.makedirs(test_dir, exist_ok=True)
@@ -29,7 +30,8 @@ class QAAgent(BaseAgent):
             # 2. Terraform Plan
             self.log("Running terraform plan...")
             plan_path = "plan.tfplan"
-            subprocess.run(["terraform", "plan", "-out", plan_path], cwd=self.cfg.paths.output_dir, check=True, capture_output=True)
+            # Use -input=false. terraform.tfvars is automatically loaded if present.
+            subprocess.run(["terraform", "plan", "-out", plan_path, "-input=false"], cwd=self.cfg.paths.output_dir, check=True, capture_output=True)
             
             # 3. Terraform Compliance
             self.log("Running terraform-compliance...")
@@ -47,6 +49,7 @@ class QAAgent(BaseAgent):
     def generate_integration_tests(self, blueprint: str):
         self.log("Generating Terratest (Go) code...")
         test_code = self.think(self.cfg.prompts.qa.tasks.integration.format(blueprint=blueprint))
+        test_code = self._clean_content(test_code)
         
         test_dir = os.path.join(self.cfg.paths.output_dir, "test")
         os.makedirs(test_dir, exist_ok=True)
@@ -79,3 +82,17 @@ class QAAgent(BaseAgent):
                 
         except Exception as e:
             self.log(f"Error executing Integration tests: {e}")
+
+    def _clean_content(self, content: str) -> str:
+        import re
+        # Try to find content within code blocks
+        matches = re.findall(r"```(?:\w+)?\n(.*?)```", content, re.DOTALL)
+        if matches:
+            # Prefer block containing Go package or Feature keyword
+            for match in matches:
+                if "package " in match or "Feature:" in match:
+                    return match.strip()
+            # Fallback to longest
+            return max(matches, key=len).strip()
+        # Fallback: return content as is
+        return content.strip()
