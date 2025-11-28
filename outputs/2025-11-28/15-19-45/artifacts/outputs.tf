@@ -1,0 +1,1 @@
+Error generating content: 404 Publisher Model `projects/moe-app-bfsi-1757248254/locations/us-central1/publishers/google/models/gemini-1.5-pro` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions

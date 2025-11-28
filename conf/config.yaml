@@ -4,17 +4,18 @@ defaults:
 
 hydra:
   run:
-    dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: outputs/${now:%Y-%m-%d}/${module_name}
 
 app:
   name: "TFE-SDLC-Automation-Agent"
   version: "1.0.0"
 
+module_name: "terraform_module"
 requirements: "Standard AKS Cluster"
 
 llm:
-  model: "gemini-3.0-pro"
-  temperature: 0.2
+  model: "gemini-2.5-flash-lite"
+  temperature: 0.7
   max_tokens: 2048
   api_key: "${oc.env:GEMINI_API_KEY, ''}"
 

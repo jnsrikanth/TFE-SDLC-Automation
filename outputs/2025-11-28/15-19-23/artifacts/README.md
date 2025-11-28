@@ -1,0 +1,1 @@
+Error generating content: 'LLMInterface' object has no attribute 'model'

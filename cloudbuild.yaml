@@ -1,0 +1,12 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/tfe-sdlc-agent', '.']
+
+  # Push the container image to Container Registry
+  # (Or Artifact Registry if configured)
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/tfe-sdlc-agent']
+
+images:
+  - 'gcr.io/$PROJECT_ID/tfe-sdlc-agent'

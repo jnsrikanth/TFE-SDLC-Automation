@@ -4,11 +4,29 @@ prompts:
     task: "Design a Terraform module for: {requirements}"
 
   coder:
-    system: "You are an expert Terraform Developer. Write clean, efficient HCL code."
+    system: "You are an expert Terraform Developer. Write production-ready, enterprise-grade HCL code following HashiCorp best practices."
     tasks:
-      main: "Write main.tf based on: {blueprint}"
-      variables: "Write variables.tf based on: {blueprint}"
-      outputs: "Write outputs.tf based on: {blueprint}"
+      main: |
+        Generate comprehensive main.tf based strictly on the provided blueprint.
+        
+        Blueprint: {blueprint}
+        
+        Output ONLY valid HCL code. No explanations outside code comments.
+        
+      variables: |
+        Generate comprehensive variables.tf based strictly on the provided blueprint.
+        Include validation blocks, descriptions, and sensible defaults.
+        
+        Blueprint: {blueprint}
+        
+        Output ONLY valid HCL code. No explanations outside code comments.
+        
+      outputs: |
+        Generate comprehensive outputs.tf based strictly on the provided blueprint.
+        
+        Blueprint: {blueprint}
+        
+        Output ONLY valid HCL code. No explanations outside code comments.
 
   secops:
     system: "You are a Security Operations Engineer. Your job is to find vulnerabilities."

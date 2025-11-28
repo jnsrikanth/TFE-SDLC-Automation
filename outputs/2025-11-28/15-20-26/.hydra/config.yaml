@@ -1,0 +1,134 @@
+app:
+  name: TFE-SDLC-Automation-Agent
+  version: 1.0.0
+requirements: Create a simple GCS bucket module
+llm:
+  model: gemini-2.5-flash-lite
+  temperature: 0.7
+  max_tokens: 2048
+  api_key: ${oc.env:GEMINI_API_KEY, ''}
+paths:
+  output_dir: ${hydra:runtime.output_dir}/artifacts
+  templates_dir: ${hydra:runtime.cwd}/templates
+  policy_library: ${hydra:runtime.cwd}/policy-library
+agents:
+  architect:
+    name: Architect
+    model: ${llm.model}
+  coder:
+    name: Coder
+    model: ${llm.model}
+  secops:
+    name: SecOps
+    tools:
+    - checkov
+    - detect-secrets
+    - sentinel
+  qa:
+    name: QA
+    frameworks:
+    - terratest
+    - terraform-compliance
+  scribe:
+    name: Scribe
+prompts:
+  architect:
+    system: You are a Senior Cloud Architect specializing in Azure and Terraform.
+    task: 'Design a Terraform module for: {requirements}'
+  coder:
+    system: You are an expert Terraform Developer. Write production-ready, enterprise-grade
+      HCL code following HashiCorp best practices.
+    tasks:
+      main: 'Generate comprehensive main.tf for enterprise AKS cluster based on the
+        blueprint.
+
+
+        Requirements:
+
+        - Complete azurerm_kubernetes_cluster resource with all enterprise features
+
+        - Multi-zone node pool configuration with availability zones
+
+        - Azure CNI networking with network policies
+
+        - Azure AD RBAC integration (dynamic blocks)
+
+        - Monitoring integration (OMS agent, diagnostic settings)
+
+        - Security features (Defender, Azure Policy, Key Vault Secrets Provider)
+
+        - Cluster autoscaler configuration
+
+        - Support for additional user node pools
+
+        - Proper lifecycle rules and ignore_changes
+
+        - Comprehensive inline comments explaining configuration choices
+
+
+        Blueprint: {blueprint}
+
+
+        Output ONLY valid HCL code. No explanations outside code comments.
+
+        '
+      variables: "Generate comprehensive variables.tf for enterprise AKS cluster.\n\
+        \nRequirements:\n- 40+ input variables covering all aspects:\n  * Cluster\
+        \ identification (name, location, resource group)\n  * Networking (VNet, subnets,\
+        \ CIDR ranges, network plugin/policy)\n  * Node pools (system and user pools\
+        \ with all properties)\n  * Identity & RBAC (managed identity, AAD groups,\
+        \ RBAC settings)\n  * Monitoring (Log Analytics, Container Insights, diagnostics)\n\
+        \  * Security (private cluster, Defender, Policy, Key Vault integration)\n\
+        \  * Auto-scaling (cluster autoscaler profile with all tuning parameters)\n\
+        \  * Maintenance (upgrade channels, maintenance windows)\n  * Tags and metadata\n\
+        - Comprehensive validation blocks for each variable where applicable:\n  *\
+        \ String length validation\n  * Regex pattern validation  \n  * CIDR format\
+        \ validation\n  * Enum/allowed values validation\n- Detailed descriptions\
+        \ for each variable\n- Sensible production-ready defaults\n- Use object types\
+        \ for complex configurations (node pools, autoscaler profile)\n\nBlueprint:\
+        \ {blueprint}\n\nOutput ONLY valid HCL code. No explanations outside code\
+        \ comments.\n"
+      outputs: 'Generate comprehensive outputs.tf exposing all critical cluster information.
+
+
+        Requirements:
+
+        - Cluster identification outputs (id, name, FQDN, private FQDN)
+
+        - Access outputs (kubeconfig, certificates) marked as sensitive
+
+        - Identity outputs (managed identity IDs, principal IDs)
+
+        - Network profile outputs (all networking configuration)
+
+        - Node pool outputs (default and additional pools status)
+
+        - Monitoring outputs (OMS agent identity, Key Vault identity)
+
+        - Helper outputs (portal URL, kubectl commands)
+
+        - Comprehensive descriptions for each output
+
+
+        Blueprint: {blueprint}
+
+
+        Output ONLY valid HCL code. No explanations outside code comments.
+
+        '
+  secops:
+    system: You are a Security Operations Engineer. Your job is to find vulnerabilities.
+    tasks:
+      secrets: Run detect-secrets on {code_path}
+      sast: Run Checkov analysis on {code_path}
+      policy: I have run 'sentinel apply' using policies from '{policy_path}' against
+        '{code_path}'. Simulate the output report based on standard Azure governance
+        rules.
+  qa:
+    system: You are a QA Engineer specializing in Infrastructure as Code.
+    tasks:
+      bdd: 'Write terraform-compliance features for: {blueprint}'
+      integration: 'Write Terratest code for: {blueprint}'
+  scribe:
+    system: You are a Technical Writer.
+    task: 'Write README.md for: {blueprint}'
