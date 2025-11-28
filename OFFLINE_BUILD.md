@@ -15,13 +15,15 @@ To overcome this, we use a **Vendoring Strategy**: we download all dependencies 
 
 ## 2. Vendor Dependencies
 
-Run the provided script to download all required assets into the `vendor/` directory.
+**NOTE:** The `vendor/` directory is already populated and committed to this repository. You do **not** need to run the download script unless you are updating dependencies.
+
+If you need to update dependencies (e.g., new Terraform version), run:
 
 ```bash
 ./scripts/vendor_dependencies.sh
 ```
 
-This will create:
+This will update:
 *   `vendor/bin/terraform.zip`
 *   `vendor/bin/sentinel.zip`
 *   `vendor/bin/go.tar.gz`
