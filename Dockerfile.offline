@@ -1,0 +1,49 @@
+# Base image with Python 3.11
+# In a restricted env, ensure this image is pulled from your internal registry
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies
+# NOTE: In a strictly disconnected env, you might need to use a base image 
+# that already has these installed, or point apt to a local mirror.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    unzip \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy vendored assets
+COPY vendor/ /tmp/vendor/
+
+# Install Terraform from local zip
+RUN unzip /tmp/vendor/bin/terraform.zip -d /usr/local/bin/ \
+    && chmod +x /usr/local/bin/terraform
+
+# Install Sentinel from local zip
+RUN unzip /tmp/vendor/bin/sentinel.zip -d /usr/local/bin/ \
+    && chmod +x /usr/local/bin/sentinel
+
+# Install Go from local tarball
+RUN tar -C /usr/local -xzf /tmp/vendor/bin/go.tar.gz
+ENV PATH=$PATH:/usr/local/go/bin
+
+# Install Python dependencies from local wheels
+COPY requirements.txt .
+RUN pip install --no-cache-dir --no-index --find-links=/tmp/vendor/python -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Create output directory
+RUN mkdir -p outputs
+
+# Entrypoint
+ENTRYPOINT ["python", "main.py"]
